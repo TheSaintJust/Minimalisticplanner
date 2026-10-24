@@ -4,67 +4,77 @@ A Next.js workspace for opportunity discovery, planning, learning and research. 
 
 ## Current milestone
 
-- Responsive dashboard shell with navigation for Overview, Calendar, Planner, Learner and Research.
-- Separate opportunity windows for Applications, Scholarships & Fellowships, Writing, Calls for Papers, Jobs & Internships, and Special Focus.
-- Email/password sign-in and sign-up with Supabase Auth.
-- Authenticated read-only view of records in `public.opportunities`, including category, verification status, last verification date and official source link.
-- Search and category filtering.
-- CI build workflow.
-- Preview mode before environment variables are configured.
+- Responsive dashboard with six opportunity windows, including a distinct Jobs & Internships section.
+- Supabase Auth email/password sign-in and authenticated opportunity directory.
+- Dedicated Learner workspace with resource search, type filters, MOOC / YouTube playlist / university lecture / URL / PDF / screenshot / note resource types, and private PDF/image uploads.
+- Settings workspace with saved AI provider/model preferences and honest setup checklists for Google Calendar and Telegram.
+- RLS-protected tables for learner resources, integration status, AI preferences, planner projects, planner tasks, calendar events and Telegram/web assistant command drafts.
+- Private `learner-resources` Storage bucket with user-folder policies and short-lived signed links for opening uploaded files.
+- GitHub Actions production build check.
 
-Calendar, task CRUD, AI extraction, automated schedules and approval/promote flows are not implemented yet. The Add Opportunity action is intentionally a placeholder until write permissions and the review workflow are built.
+The Learner UI currently saves and retrieves resources and private files. PDF text extraction, screenshot OCR, YouTube transcript processing, AI summaries and AI-generated learning paths are not implemented yet.
+
+Google Calendar OAuth and two-way sync, Telegram bot pairing/webhook, encrypted personal API-key storage, provider adapters, online research and task-plan generation still require implementation and credentials. The Settings page intentionally does not report either integration as connected before a real handshake succeeds.
 
 ## Requirements
 
 - Node.js 20.9 or later (Node.js 22 LTS recommended)
 - npm
 - Git
-- Supabase access to the existing project
+- Access to the existing Supabase project
 
 ## Run locally (Windows PowerShell)
 
 1. Install Node.js from https://nodejs.org/ and VS Code from https://code.visualstudio.com/.
-2. Clone this repository and open its folder in VS Code:
+2. Clone the repository:
 
    ```powershell
    git clone https://github.com/TheSaintJust/Minimalisticplanner.git
    cd Minimalisticplanner
    ```
 
-3. Create a local environment file:
+3. Create your local environment file:
 
    ```powershell
    Copy-Item .env.example .env.local
    ```
 
-4. Open `.env.local`. The Supabase project URL is already filled in. In the Supabase dashboard for project `megamcwcakaizafywdac`, open Project Settings and find the **Publishable key** (or legacy anon public key). Put it after `NEXT_PUBLIC_SUPABASE_ANON_KEY=`.
+4. In `.env.local`, keep the provided Supabase project URL and add the project's **Publishable key** (or legacy anon public key) after `NEXT_PUBLIC_SUPABASE_ANON_KEY=`. Find it in Supabase Project Settings → API Keys.
 
-   Use only the publishable/anon key in this variable. **Never put the service-role key or a database password in a `NEXT_PUBLIC_` variable or commit them to GitHub.**
+   **Never put a service-role key, database password, Google OAuth secret, Telegram bot token or provider API key in a `NEXT_PUBLIC_*` variable or commit it to GitHub.**
 
-5. Install dependencies and start the development server:
+5. Install dependencies and run the app:
 
    ```powershell
    npm install
    npm run dev
    ```
 
-6. Open http://localhost:3000.
+6. Open http://localhost:3000 and sign in.
 
-## Authentication and data access
+## Data access and privacy
 
-The app signs users in through Supabase Auth. New users may need to confirm their email, depending on the project's Auth settings. After signing in, the app reads up to 500 rows from `public.opportunities`. Access is enforced by Supabase Row Level Security, not by hiding controls in the frontend.
+- Opportunity data is read under Supabase Row Level Security.
+- Learner resources and uploaded files are private to their owner.
+- Uploaded files are limited to PDF, PNG, JPEG or WebP, with a 50 MB cap.
+- Integration status and AI preferences are user-scoped.
+- Provider preferences do not imply API credentials are configured.
+- OAuth tokens and user-supplied API keys must be stored only in a server-side encrypted secret store. Do not store raw keys in readable profile tables or browser local storage.
+- Telegram-originated plans must be researched and shown as a draft for confirmation before tasks/calendar events are created.
+- Opportunity URLs do not prove an opportunity is open; verification and deadlines must be checked against source evidence.
 
-If sign-in works but the opportunity list is empty or returns a permission error, check that:
-- Email authentication is enabled in Supabase Auth.
-- The signed-in account is authenticated.
-- The existing `opportunities` table's authenticated SELECT policy is enabled.
-- `.env.local` has the correct project URL and publishable/anon key.
+## Schema additions
 
-## Data integrity
+The Supabase project now includes:
+- `learner_resources`
+- `user_integration_connections`
+- `user_ai_preferences`
+- `planner_projects`
+- `planner_tasks`
+- `calendar_events`
+- `assistant_command_runs`
 
-Records with `unverified` or `needs_review` status are shown as such. A URL existing does not mean an opportunity is open. Newly discovered links should remain pending until source evidence, deadlines and eligibility are checked.
-
-The source crawler is deployed as the Supabase Edge Function `crawl-opportunity-sources`, but it is not scheduled and has not been run/validated end to end yet. It must not be described as an automated daily discovery system until a tested run and scheduler are in place.
+See [integrations and learner roadmap](docs/integrations-and-learning-roadmap.md) for behavior, security requirements and the remaining integration work.
 
 ## Development checks
 
@@ -73,12 +83,4 @@ npm run build
 npm run lint
 ```
 
-A GitHub Actions workflow runs a production build on pushes and pull requests to `main`.
-
-## Next milestones
-
-1. Run and fix the first production build.
-2. Connect authentication and verify the existing opportunity records load.
-3. Add opportunity detail/edit and user-specific save/track actions.
-4. Finish crawler tests and implement robust page-content extraction and manual approval.
-5. Add plans, tasks and calendar events before building AI planning and schedule automation.
+GitHub Actions runs a production build on pushes and pull requests to `main`.
