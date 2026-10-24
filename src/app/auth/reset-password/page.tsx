@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { ArrowLeft, KeyRound, Mail, ShieldCheck } from "lucide-react";
@@ -9,17 +9,29 @@ export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [sent, setSent] = useState(false);
+  const [recoveryReady, setRecoveryReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState(false);
   const [client] = useState(() => createClient());
+
+  useEffect(() => {
+    if (!client) return;
+    void client.auth.getSession().then(({ data }) => {
+      if (data.session) setRecoveryReady(true);
+    });
+    const { data } = client.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) setRecoveryReady(true);
+    });
+    return () => data.subscription.unsubscribe();
+  }, [client]);
 
   async function requestReset(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!client) { setError(true); setMessage("Supabase is not configured yet."); return; }
     setBusy(true); setMessage(""); setError(false);
     const { error: requestError } = await client.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/reset-password`,
+      redirectTo: `${window.location.origin}/auth/callback?next=/auth/reset-password`,
     });
     setBusy(false);
     if (requestError) { setError(true); setMessage(requestError.message); return; }
@@ -45,7 +57,7 @@ export default function ResetPasswordPage() {
       <h1>Reset your password</h1>
       <p className="auth-description">Recover access to your private workspace securely.</p>
       {message && <div className={`auth-message ${error ? "auth-message-error" : "auth-message-success"}`} role="status">{message}</div>}
-      {!sent ? <form className="auth-form" onSubmit={requestReset}>
+      {!recoveryReady ? <form className="auth-form" onSubmit={requestReset}>
         <label htmlFor="reset-email">Email address</label>
         <div className="auth-input"><Mail size={17}/><input id="reset-email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com"/></div>
         <button className="auth-primary" disabled={busy}>{busy ? "Sending link…" : "Send reset link"}</button>
