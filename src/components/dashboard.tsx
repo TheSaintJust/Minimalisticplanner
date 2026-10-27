@@ -15,6 +15,7 @@ import { SettingsWorkspace } from "@/components/settings-workspace";
 import { PlannerWorkspace } from "@/components/planner-workspace";
 import { EssentialInformationWorkspace } from "@/components/essential-information-workspace";
 import { TrackOpportunityButton } from "@/components/track-opportunity-button";
+import { CalendarWorkspace } from "@/components/calendar-workspace";
 
 type Category = "all" | "application" | "scholarship_fellowship" | "writing" | "call_for_papers" | "jobs_internships" | "special_focus";
 type Module = "overview" | "calendar" | "planner" | "learner" | "research" | "essential" | "settings" | Category;
