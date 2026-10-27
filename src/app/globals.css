@@ -602,3 +602,20 @@ body { background: #f4f6f9; }
 .track-modal-hint { display:flex; align-items:flex-start; gap:8px; padding:11px; background:#f5f8fb; border-radius:8px; color:#6b7b8d; font-size:10px; line-height:1.6; }
 .track-modal-actions { display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:8px; margin-top:20px; }
 @media(max-width:760px) { .essential-layout { grid-template-columns:1fr; } .essential-hero { align-items:flex-start; flex-direction:column; } .essential-tree { max-height:280px; overflow:auto; } .track-modal { padding:21px; } }
+
+
+.calendar-workspace { display:flex; flex-direction:column; gap:17px; }
+.calendar-hero { display:flex; justify-content:space-between; align-items:flex-end; gap:18px; }
+.calendar-hero h2 { margin:9px 0 7px; font-size:26px; letter-spacing:-.8px; }
+.calendar-hero p { margin:0; color:var(--muted-dark); font-size:12px; }
+.calendar-event-list { display:flex; flex-direction:column; gap:9px; }
+.calendar-event-card { display:flex; align-items:flex-start; gap:14px; padding:17px; border:1px solid var(--border); border-radius:11px; background:#fff; }
+.calendar-event-date { flex:0 0 53px; min-height:53px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; border-radius:9px; background:var(--accent-soft); color:var(--accent); font-size:11px; font-weight:750; }
+.calendar-event-main { flex:1; min-width:0; }
+.calendar-event-main > strong { display:block; font-size:13px; line-height:1.5; }
+.calendar-event-main > p { margin:5px 0; color:#536579; font-size:11px; }
+.calendar-event-main > small { display:block; color:#8491a0; font-size:10px; line-height:1.6; white-space:pre-line; overflow-wrap:anywhere; }
+.calendar-event-meta { display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; }
+.calendar-event-meta span { padding:4px 7px; border-radius:5px; background:#f4f6f8; color:#758292; font-size:9px; text-transform:capitalize; }
+.calendar-sync-note { color:#8994a1; font-size:10px; line-height:1.6; }
+@media(max-width:600px) { .calendar-hero { align-items:flex-start; flex-direction:column; } .calendar-event-card { padding:12px; gap:10px; } }
